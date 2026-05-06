@@ -1,0 +1,47 @@
+transactions = [
+    {"reference": "tx001", "type": "deposit", "amount": 5000, "account": "ACC1001"},
+    {"reference": "tx002", "type": "withdrawal", "amount": 2000, "account": "ACC1001"},
+    {"reference": "tx003", "type": "deposit", "amount": 10000, "account": "ACC2001"},
+]
+
+accounts = {
+    "ACC1001": {"name": "Moosa", "balance": 3000},
+    "ACC2001": {"name": "Jane", "balance": 500}
+}
+
+def transaction_processor(transactions, accounts):
+    notifications = []
+    failed = []
+    seen = set()
+
+    for transaction in transactions:
+        if transaction["reference"] in seen:
+            pass # seen is the reference list. If the the reference code is not found in seen, the code continues execution.
+        else:
+            seen.add(transaction["reference"]) # This adds the reference to seen, to that it is not duplicated.
+
+            if transaction["account"] in accounts:
+                # this block checks the transaction type and performs the transaction
+                if transaction["type"] == "deposit":
+                    accounts[transaction["account"]]["balance"] += transaction["amount"]
+                    notifications.append(accounts[transaction["account"]]["name"] + " received " + str(transaction["amount"])
+                                         + ". New balance: " + str(accounts[transaction["account"]]["balance"]))
+                else:
+                    if accounts[transaction["account"]]["balance"] >= transaction["amount"]:
+                        accounts[transaction["account"]]["balance"] -= transaction["amount"]
+                        notifications.append(accounts[transaction["account"]]["name"] + " withdrew " + str(transaction["amount"])
+                                             + ". New balance: " + str(accounts[transaction["account"]]["balance"]))
+                    else:
+                        failed.append({"reference": transaction["reference"], "reason": "Insufficient funds"})
+
+            else:
+                failed.append({"reference": transaction["reference"], "reason": "The account does not exist"})
+
+    return{
+        "notifications": notifications,
+        "failed": failed,
+    }
+
+display = transaction_processor(transactions, accounts)
+print(display["notifications"])
+print(display["failed"])
